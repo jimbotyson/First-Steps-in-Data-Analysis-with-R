@@ -1,0 +1,341 @@
+---
+title: "First Steps in Data Analysis with R"
+
+output: 
+  learnr::tutorial:
+    theme: simplex
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+library(reticulate)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Introduction
+
+This is an introduction to the use of R with RStudio for data analysis.  It is not an introduction to R generally, and topics that would always be covered in such a course are treated only very briefly here: building vectors and matrices, writing functions, vectorised mathematics and so on.  Instead we concentrate on data management and analysis tasks.
+
+I think you can usefully follow this tutorial even if you haven't leraned to program in R.  We will take some time to learn the very basics and also to learn about RStudio.
+
+Where you are required to write code, I have tried hard to scaffold the method required for you so that you can work out what the code should look like.  In almost all cases, in case my scaffolding fails, I have provided the code solution to these exercises and in this way, you should not miss out on any steps that have a cumulative effect.
+
+## R the Very basics with RStudio
+
+### The RStudio IDE
+
+#### The opening pane setup
+
+##### The console
+
+##### The environment
+
+##### The viewer
+
+##### Adding a source pane
+
+#### Tools and preferences
+
+#### The tools menu
+
+#### Setting preferences
+
+### Computing at the console
+
+What is the console?
+
+#### Arithmetic
+
+ * addition, subtraction, multiplication, division, exponents
+ 
+ * functions: sqrt(), mean()
+ 
+ * constants: pi, i, e?
+ 
+#### Variables
+
+What is a variable?
+What is variable assignment - why use <-?
+x=x+1
+
+#### Vectors and matrices
+
+c()
+
+:
+
+cbind()
+
+rbind()
+
+
+##### Indexing vectors and matrices
+
+Linear
+
+RC
+
+x[1]
+
+x[>4]
+
+x[x>5]
+
+x[1:5,5:10]
+
+## Begin data analysis
+
+In the rest of this tutorial we will learn how to:
+
+ 1. read data from a local or remote file into an R data object
+ 2. check and correct the types of variables in our data
+ 3. create new variables from old
+ 4. select subsets of data meeting various criteria
+ 
+But before any of this, a word about **R packages**.
+
+Packages are libraries of R code that extend the funcitonality of base R in various ways.  For example, the package **ggplot2** provides a simple framework for producing high quality graphs in R.
+
+There are some packages used by almost all R data analysts because they are so useful.  Among these are the packages of the [tidyverse](http://www.tidyverse.org).
+
+The *tidyverse* package includes functions for data manipulation and management and plotting (and indeed more).  We will load the package and use some of its functions right from the start.
+ 
+## Reading remote data files
+
+There are several R functions to read data from a file.  They are specialised according to the format of the data file.
+
+Perhaps the simples is a plain text file with observations or cases in rows and variables seperated by either spaces or tabs.  These files are read with *__read.table()__*.
+
+*__read.table()__* is a base R function.  Funcions often require information which is passed to the function inside the parentheses.  In this case, the information required - the _argument(s)_ or _parameter(s)_ - is the name of the data file.  There are some options.  For example you can specify whether or not the first row contains headers.
+
+If the file is held on a remote webserver, then the argument passed to the function must be the full URL that leads to the file.  Here is an example of its use
+
+```
+mydf = read.table("http://www.ucl.ac.uk/~ccaajim/results.txt")
+```
+
+This example code reads the file and stores the contents in an object calld __mydf__
+
+The file *results.txt* doesn't exist at this address, so this code would fail.
+
+Instead, the data we will use is in the *comma separated values* format.  It is located on a remote web server at the URL "http://www.ucl.ac.uk/~ccaajim/results.csv".
+
+Although there is a base R function to do the job, we will use the tidyverse function to read this file: _**read_csv()**_.
+
+### Exercise: reading a data file
+
+Write and run the R code that will read the data from the file in the URL above and store it in an object called _resultsdf_.
+
+```{r readresults, exercise=TRUE}
+
+
+```
+
+```{r readresults-solution}
+
+resultsdf <- read_csv("http://www.ucl.ac.uk/~ccaajim/results.csv")
+
+```
+
+```{r resultsresults, echo=FALSE}
+# This is a hack - it works better in the notebook and doesn't visibly parse the file again
+
+suppressMessages(resultsdf <- read.csv("http://www.ucl.ac.uk/~ccaajim/results.csv"))
+suppressMessages(resultsdf <- as_data_frame(resultsdf))
+```
+
+## Viewing data in RStudio
+This code results in a *tibble*: a modern take on the classic data table.   If our data is properly set out, each row is a case and each column is a variable.  This data is not quite properly [_tidy_](https://en.wikipedia.org/wiki/Tidy_data) but it will do.
+
+Now that you have created the data object, you can view the first few lines of data with __*head()*__.
+
+```{r headresults, echo=TRUE}
+head(resultsdf)
+```
+
+You should also try the R command __*View()*__ which opens an attractive view of your data object in its own tab.  Notice that __*View*__ has a capital V.
+
+## Checking the structure of your data
+
+Data can be numeric or text, it may be integer data or it may it may involve fractional values (like the rational numbers).  Text data may be represented as characters or as strings of characters.
+
+When you import data, R will try to work out what the correct representation is.  It will certainly recognise obvious strings and numbers, but sometimes you may want to check, especially because R will not always recognise the correct *level of measurement*.
+
+As well as having a data type (such as text or numeric) variables may also be distinguished as continuous scores (on the interval or ratio scales) or *factors* (categorical data, both nominal and ordinal).
+
+In R, the important distinction is between factor and non-factor data, and within factors between *ordered* and non-ordered data.
+
+Now that you have downloaded the data set, you can check its structure.  First, use the function _**names()**_ to find out what the variables in your data set are called.
+
+### Exercise: getting variable names
+
+```{r namestask, exercise=TRUE}
+
+
+```
+
+```{r namestask-solution}
+names(resultsdf)
+```
+
+You can get more detail about the variables in your dataset with the **str()** function.  Use this function to inspect *resultsdf*.
+
+### Exercise: the structure of the dataset
+
+```{r strtask, exercise=TRUE}
+
+```
+```{r strtask-solution}
+
+str(resultsdf)
+
+```
+### Exercise: answer the following question.
+
+```{r factortask, echo=FALSE}
+question("Which of the variables are factors?",
+  answer("surname",correct = TRUE),
+  answer("sex", message="This variable probably should be factor but currently is not."),
+  answer("class", message="This variable probably should be factor but currently is not."),
+  answer("All of the above",message="These variables probably should all be factor but currently only surname is.")
+)
+```
+
+### Exercise: a glimpse at your data
+
+There is a tidyverse function __*glimpse*__ which provides similar output but a little tidier.  Try it below.
+
+```{r glimpsetask, exercise=TRUE}
+
+
+```
+
+## Transforming and creating variables
+
+### Setting up factors
+
+As we saw earlier, the two variables *sex* and *class* should be understood as factors but are currently identified by R as integer data.
+
+This is important, because if we were to do a regression analysis, for example, with *sex* as an independent variable, R would treat it as numeric giving quite the wrong results.
+
+To correct this, we will take the data set *resultsdf* and modify it by *mutating* the variable *sex*.  There is an R function __*as.factor*__ that takes a numeric variable and *coerces* it to a factor.
+
+Our process will be to select the dataset results and then *pipe* it to the tidyverse function __*mutate*__, and instruct __*mutate*__ to use __*as.factor*__ to convert it to a factor.
+
+**Piping** is the action of sending the output of one R operation through to another R operation; through a pipe so to speak.  We write pipe like this: %>%.
+
+So, first select the data set just by naming it, pass it through a pipe to mutate:
+
+```{r firstpipeexample, echo=TRUE}
+resultsdf %>% 
+    mutate(sex=as.factor(sex))
+```
+
+But this operation does **not** modify *resultsdf*.  
+
+Try this code in the run-box below and add a call to _**str()**_ to check the result.
+
+
+```{r mutatefirsttask, exercise=TRUE}
+
+```
+
+To modify our dataset we need to make R run this operation and write the output to a data object.  In this case, we want R to **overwrite** the existing object *resultsdf*.
+
+Assignment of a value to a name is with the <- operator.  So the code will look something like this:
+
+```
+thedataset <- thedataset %>% 
+    mutate(variablename=as.factor(variablename))
+```
+
+Can you modify this example code to correctly transfor the *sex* variable to a factor?  Try below.
+
+```{r mutatesecondtask, exercise=TRUE}
+
+
+```
+```{r mutatesecondtask-solution}
+resultsdf <- resultsdf %>% 
+	mutate(sex=as.factor(sex))
+```
+
+### Creating summary variables
+
+For each student we know their scores out of 100 in each of three tests: Maths, English and History.  It would be useful to have a variable that summarizes their overall performance.  A good candidate in this case is the *average* or *mean*.  There are two ways we could calculate this in R.  The first way is to do the maths ourselves:
+
+```
+average_exam = (maths + english + history)/3
+```
+
+Or we could try using a built in R function.  R has two built in functions for calculating means along matrix or table dimensions: _*rowMeans()*_ and _*colMeans()*_.
+
+In order to get the desired result, we will want to start with the tibble, *resultsdf* pipe it to a statement that will *select* which columns we want and pipe this subset of columns to a *mutate* statement.
+
+Since the first method above is so simple, in this case we could certainly use it.  But we will try out the second method so as to build familiarity with the use of *pipes* and tidyverse functions.
+
+The code should have this structure:
+
+```{r}
+mytibble %>%
+	mutate(new_value = arithemetic)
+
+```
+
+See if you can write the code that will create this new variable - *average_exm* - for our *resultsdf* dataset.
+
+```{r avxmtaskone, exercise=TRUE}
+
+```
+
+```{r avxmtaskone-solution, echo=TRUE}
+resultsdf <- resultsdf %>% 
+	mutate(average_exam=(maths+english+history)/3)
+
+head(resultsdf)
+
+```
+
+In my solution, I added a call to head so that we can eyeball the results.
+
+Of course, you can use any mathematical procedure to *mutate* a new variable.  You could for example take the lot of a skewed variable if you wished.
+
+## Generating a new ranking variable
+
+We will now create a new variable based on the *average_exam* variable just created.
+_
+We want to *cut* the continuous variable *average_exam* into three, distinct categorical levels which are ordered.
+
+We will once again overwrite *resultsdf* with a new version containing this mutated variable.  The calculation in the *mutate* clause can be done with the R function _*cut()*_.
+
+_*cut()*_ takes some data and a set of break points and uses the break points to divide the scores into a set of ordered groups.
+
+Let's experiment.  We can create a vector of integers one to ten and cut it with into three groups.
+
+```{r cutexample, echo=TRUE}
+
+vec <- 1:100
+
+cutvec <- cut(vec, breaks = c(0,49,59,100))
+
+rbind(vec,cutvec)
+
+```
+
+It may help to think of this as a way of writing three pairs of *floor* and *ceiling* where the value specificed by floor is *excluded* from that interval and the value specified by ceiling is included in the interval.
+
+As long as we have integer values for *average_exam* this will be fine.  We don't and so we should *round* the variable when we cut it.
+
+The result of cut is a *factor*, but it is not ordered.  To make it an ordered factor, we must wrap the cut expression inside the function _*ordered*_.  Try this below.
+
+```{r}
+
+```
+
+
+
+
+
+
